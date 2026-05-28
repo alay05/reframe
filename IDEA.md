@@ -1,0 +1,5 @@
+i think of this as a chrome extension -eqsue type product that is usable on any given website like gmail, calendar, instagram, or even just a blog page. Every website has an underlying structure, i.e. when you inspect element theres buttons that do different things etc, everything is just lines of code with html in the end etc.... I'm thinking that you could create a product that alters the VISUAL appearance of a site such that all of the underlying functionality is the same, layouts are just changed. This could go a step deeper by sort of mixing and combining button functionality into drastically different tech.
+
+ This would work via some sort of chat bot on the side of websites/apps on your device in a way like a chrome extension type thing (i definitely don't think it would work as a chrome extension but somethign of that sort). 
+ 
+ I also relate it to how like chrome has gemini on the side. The app could eventually store users resulting layouts and upon load know to automatically change the appearance.
