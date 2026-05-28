@@ -12,6 +12,14 @@
         "<all_urls>"
       ],
       "js": [
+        "src/constants.js",
+        "src/utils.js",
+        "src/locator.js",
+        "src/state.js",
+        "src/capture.js",
+        "src/bridge.js",
+        "src/render.js",
+        "src/runtime.js",
         "src/content-script.js"
       ],
       "run_at": "document_idle"
