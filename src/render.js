@@ -203,6 +203,9 @@
       element.style.display = layout.display;
     }
 
+    if (node.kind === "link" && layout.display === "inline") {
+      element.style.marginRight = "0.35em";
+    }
     if (shouldPreserveWidth(node) && layout.width > 0) {
       element.style.width = `${layout.width}px`;
       element.style.maxWidth = "100%";
@@ -415,6 +418,15 @@
         applyLayout(button, node);
         renderChildren(button, node);
         return button;
+      }
+      case "summary": {
+        const summary = document.createElement("summary");
+        summary.className = "rf-node";
+        summary.textContent = node.text || "Details";
+        summary.dataset.nodeId = node.id;
+        summary.dataset.action = "activate";
+        applyLayout(summary, node);
+        return summary;
       }
       case "input":
       case "textarea":
@@ -689,7 +701,7 @@
       if (!node) {
         return;
       }
-      if (!["link", "button", "checkbox", "radio"].includes(node.kind)) {
+      if (!["link", "button", "summary", "checkbox", "radio"].includes(node.kind)) {
         return;
       }
       if (node.kind === "link") {
@@ -704,7 +716,7 @@
         return;
       }
       const node = renderState.nodeMap.get(target.dataset.nodeId);
-      if (!node || !["link", "button"].includes(node.kind)) {
+      if (!node || !["link", "button", "summary"].includes(node.kind)) {
         return;
       }
       if (event.key !== "Enter" && event.key !== " ") {

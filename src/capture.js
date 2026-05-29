@@ -157,7 +157,7 @@
       return "button";
     }
     if (tagName === "SUMMARY") {
-      return "button";
+      return "summary";
     }
     if (element instanceof HTMLInputElement) {
       const type = (element.type || "text").toLowerCase();
@@ -245,6 +245,9 @@
       const type = element instanceof HTMLInputElement ? (element.type || "").toLowerCase() : "";
       return type === "submit" ? "submit" : "click";
     }
+    if (kind === "summary") {
+      return "click";
+    }
     if (kind === "input" || kind === "textarea" || kind === "select") {
       return "input";
     }
@@ -275,6 +278,7 @@
       "heading",
       "link",
       "button",
+      "summary",
       "input",
       "textarea",
       "select",
