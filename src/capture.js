@@ -28,11 +28,82 @@
       paddingLeft: style.paddingLeft,
       marginTop: style.marginTop,
       marginBottom: style.marginBottom,
+      marginLeft: style.marginLeft,
+      marginRight: style.marginRight,
       borderWidth: style.borderTopWidth,
       borderStyle: style.borderTopStyle,
       borderRadius: style.borderRadius,
+      boxSizing: style.boxSizing,
+      overflow: style.overflow,
+      overflowX: style.overflowX,
+      overflowY: style.overflowY
+    };
+  }
+
+  function captureStyle(element) {
+    const style = window.getComputedStyle(element);
+    return {
+      color: style.color,
       backgroundColor: style.backgroundColor,
-      color: style.color
+      backgroundImage: safeBackgroundImage(style.backgroundImage),
+      fontFamily: style.fontFamily,
+      fontSize: style.fontSize,
+      fontWeight: style.fontWeight,
+      fontStyle: style.fontStyle,
+      lineHeight: style.lineHeight,
+      letterSpacing: style.letterSpacing,
+      textTransform: style.textTransform,
+      textDecorationLine: style.textDecorationLine,
+      textDecorationStyle: style.textDecorationStyle,
+      textDecorationColor: style.textDecorationColor,
+      borderTopColor: style.borderTopColor,
+      borderRightColor: style.borderRightColor,
+      borderBottomColor: style.borderBottomColor,
+      borderLeftColor: style.borderLeftColor,
+      borderTopWidth: style.borderTopWidth,
+      borderRightWidth: style.borderRightWidth,
+      borderBottomWidth: style.borderBottomWidth,
+      borderLeftWidth: style.borderLeftWidth,
+      borderTopStyle: style.borderTopStyle,
+      borderRightStyle: style.borderRightStyle,
+      borderBottomStyle: style.borderBottomStyle,
+      borderLeftStyle: style.borderLeftStyle,
+      borderRadius: style.borderRadius,
+      boxShadow: safeShadow(style.boxShadow),
+      opacity: style.opacity,
+      objectFit: style.objectFit,
+      objectPosition: style.objectPosition,
+      listStyleType: style.listStyleType,
+      textAlign: style.textAlign,
+      cursor: style.cursor
+    };
+  }
+
+  function safeBackgroundImage(backgroundImage) {
+    if (!backgroundImage || backgroundImage === "none") {
+      return "";
+    }
+    if (backgroundImage.includes("url(")) {
+      return "";
+    }
+    return backgroundImage;
+  }
+
+  function safeShadow(boxShadow) {
+    if (!boxShadow || boxShadow === "none") {
+      return "";
+    }
+    return boxShadow.length > 240 ? "" : boxShadow;
+  }
+
+  function elementState(element) {
+    return {
+      ariaExpanded: element.getAttribute("aria-expanded") || "",
+      ariaSelected: element.getAttribute("aria-selected") || "",
+      ariaCurrent: element.getAttribute("aria-current") || "",
+      open: Boolean(element.open),
+      disabled: Boolean(element.disabled),
+      hidden: Boolean(element.hidden)
     };
   }
 
@@ -245,7 +316,11 @@
       text,
       attributes: captureAttributes(element),
       layout: captureLayout(element),
-      state: inputState(element),
+      style: captureStyle(element),
+      state: {
+        ...elementState(element),
+        ...inputState(element)
+      },
       action: actionFor(kind, element),
       targetRef: locator.createElementRef(element),
       children
@@ -328,6 +403,9 @@
       kind: "root",
       tagName: "body",
       text: "",
+      layout: captureLayout(body),
+      style: captureStyle(body),
+      state: {},
       children: rootChildren
     };
     const fingerprintParts = [];
