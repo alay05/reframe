@@ -439,9 +439,6 @@
         item.className = "rf-node";
         item.dataset.nodeId = node.id;
         applyLayout(item, node);
-        if (node.text) {
-          item.appendChild(document.createTextNode(node.text));
-        }
         renderChildren(item, node);
         return item;
       }
@@ -631,9 +628,6 @@
     element.className = "rf-node";
     element.dataset.nodeId = node.id;
     applyLayout(element, node);
-    if (node.text) {
-      element.appendChild(document.createTextNode(node.text));
-    }
     renderChildren(element, node);
     return element;
   }
