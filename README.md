@@ -6,14 +6,14 @@ Most websites already expose a live structure through the DOM: links, buttons, f
 
 In the long term, this could make it possible to rework complex sites into simpler, more focused, or radically different layouts without rebuilding the underlying application. A user's preferred version of a site could eventually be remembered and restored automatically when they return.
 
-This repository is the first technical proof of that process. It is not trying to personalize layouts yet, use AI, or create polished redesigns. The current MVP is a Chrome Extension MV3 prototype that turns a basic website into a plain black-and-white overlay while preserving the original page's functionality underneath.
+This repository is the first technical proof of that process. It is not trying to personalize layouts yet, use AI, or create polished redesigns. The current MVP is a Chrome Extension MV3 prototype that turns a basic website into a reworked overlay while preserving the original page's functionality underneath.
 
 ## What it does
 
 - Injects a persistent `Rework` / `Unrework` toggle on every page.
 - Stores mode state per origin in `chrome.storage.local`.
 - Captures a tree-shaped representation of visible page structure, controls, images, tables, lists, and semantic containers.
-- Renders a simplified black-and-white overlay that preserves recognizable page grouping and layout.
+- Captures a safe subset of computed styles and renders a higher-fidelity overlay that preserves recognizable page grouping, typography, spacing, color, borders, and layout.
 - Routes overlay interactions back to the native DOM.
 - Rebuilds the overlay after navigation and DOM changes to stay in sync.
 
@@ -24,7 +24,7 @@ This repository is the first technical proof of that process. It is not trying t
 3. Choose `Load unpacked`.
 4. Select this repository directory.
 
-## Local test fixture
+## Local test corpus
 
 Run a local static server from the repository root:
 
@@ -32,10 +32,18 @@ Run a local static server from the repository root:
 python3 -m http.server 4173
 ```
 
-Then open `http://localhost:4173/fixtures/manual-test.html` and test `Rework` / `Unrework` against the fixture content, form, table, buttons, and hash navigation.
+Then open `http://localhost:4173/tests/` and test `Rework` / `Unrework` against the local corpus:
+
+- `basic-storefront.html`: baseline content, form, table, buttons, and hash state.
+- `landing-page.html`: hero, nav, calls to action, cards, and responsive sections.
+- `ecommerce.html`: filters, product grid, variants, quantity fields, and cart state.
+- `dashboard.html`: sidebar, top bar, metrics, tabs, table, search, and row actions.
+- `forms.html`: grouped fields, validation messages, radios, checkboxes, selects, and disabled inputs.
+- `modal-menu.html`: dropdown menu, disclosure content, and dialog behavior.
+- `spa-routes.html`: hash/history navigation and dynamic content replacement.
 
 ## Notes
 
 - This MVP targets ordinary DOM-heavy sites, not canvas-driven or highly virtualized apps.
-- The overlay is intentionally black-and-white and non-personalized; it approximates structure rather than cloning exact CSS.
+- The overlay is intentionally non-personalized; it mirrors a safe subset of the source page rather than cloning every CSS rule.
 - Unsupported or unreliable elements are omitted instead of forcing broken interactions.
