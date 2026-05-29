@@ -147,9 +147,6 @@
     const tagName = element.tagName;
     const role = utils.elementRole(element);
 
-    if (role === "img" || hasVisualSurface(element)) {
-      return "visual";
-    }
     if (constants.HEADING_TAGS.has(tagName)) {
       return "heading";
     }
@@ -189,6 +186,9 @@
     }
     if (element instanceof HTMLCanvasElement || element instanceof HTMLVideoElement || element instanceof HTMLIFrameElement) {
       return "placeholder";
+    }
+    if (role === "img" || hasVisualSurface(element)) {
+      return "visual";
     }
     if (tagName === "UL" || tagName === "OL") {
       return "list";
