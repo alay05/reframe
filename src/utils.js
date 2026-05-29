@@ -124,6 +124,10 @@
   }
 
   function mutationTouchesOnlyExtensionDom(mutation) {
+    if (mutation.type === "attributes" && mutation.attributeName === constants.ATTR_ID) {
+      return true;
+    }
+
     const isExtensionNode = (node) => {
       if (!(node instanceof Element)) {
         return true;
