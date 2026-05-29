@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Reframe Landing Page Test</title>
+    <style>
+      :root {
+        color: #162033;
+        background: #eef2f5;
+        font-family: "Avenir Next", Arial, sans-serif;
+      }
+      body {
+        margin: 0;
+      }
+      header {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 18px 32px;
+        background: rgba(255, 255, 255, 0.94);
+        border-bottom: 1px solid #d3dbe4;
+      }
+      nav {
+        display: flex;
+        gap: 18px;
+      }
+      .hero {
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        min-height: 520px;
+        gap: 32px;
+        align-items: center;
+        padding: 56px 32px;
+      }
+      .hero h1 {
+        font-size: 58px;
+        line-height: 1;
+        margin: 0 0 18px;
+      }
+      .actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 24px;
+      }
+      button,
+      .button {
+        border: 0;
+        border-radius: 4px;
+        background: #1d4f7a;
+        color: #fff;
+        padding: 12px 18px;
+        text-decoration: none;
+      }
+      .secondary {
+        background: #dbe6ef;
+        color: #162033;
+      }
+      .panel {
+        display: grid;
+        gap: 12px;
+        padding: 20px;
+        background: #fff;
+        border: 1px solid #d3dbe4;
+        border-radius: 8px;
+        box-shadow: 0 20px 60px rgba(26, 42, 66, 0.12);
+      }
+      .media {
+        min-height: 280px;
+        background: linear-gradient(135deg, #1d4f7a, #dbe6ef);
+        border-radius: 8px;
+      }
+      .cards {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 18px;
+        padding: 0 32px 56px;
+      }
+      article {
+        background: #fff;
+        border: 1px solid #d3dbe4;
+        border-radius: 8px;
+        padding: 20px;
+      }
+      @media (max-width: 760px) {
+        .hero,
+        .cards {
+          grid-template-columns: 1fr;
+        }
+        .hero h1 {
+          font-size: 42px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <strong>Northline</strong>
+      <nav aria-label="Main">
+        <a href="#features">Features</a>
+        <a href="#stories">Stories</a>
+        <a href="#pricing">Pricing</a>
+      </nav>
+      <button type="button" id="demo-button">Book Demo</button>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div>
+          <h1>Operational clarity for distributed teams.</h1>
+          <p>Coordinate launches, field work, inventory, and team updates from one shared interface.</p>
+          <div class="actions">
+            <a class="button" href="#features">Explore platform</a>
+            <button class="secondary" type="button" id="message-button">Show message</button>
+          </div>
+          <p id="hero-message" hidden>Native button behavior updated this message.</p>
+        </div>
+        <aside class="panel">
+          <div class="media" role="img" aria-label="Abstract product preview"></div>
+          <h2>Live Workboard</h2>
+          <p>12 active launches, 4 blocked tasks, 98% response coverage.</p>
+        </aside>
+      </section>
+
+      <section class="cards" id="features">
+        <article>
+          <h2>Planning</h2>
+          <p>Convert timelines into clear work packages.</p>
+        </article>
+        <article>
+          <h2>Execution</h2>
+          <p>Track owners, dependencies, and field status.</p>
+        </article>
+        <article>
+          <h2>Review</h2>
+          <p>Capture decisions and measure operational drift.</p>
+        </article>
+      </section>
+    </main>
+
+    <script>
+      document.getElementById("message-button").addEventListener("click", () => {
+        document.getElementById("hero-message").hidden = false;
+      });
+      document.getElementById("demo-button").addEventListener("click", () => {
+        location.hash = "pricing";
+      });
+    </script>
+  </body>
+</html>

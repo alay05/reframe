@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Reframe Modal Menu Test</title>
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: Arial, sans-serif;
+        background: #edf0f4;
+        color: #182235;
+      }
+      header {
+        display: flex;
+        justify-content: space-between;
+        padding: 18px 28px;
+        background: #fff;
+        border-bottom: 1px solid #d2dae5;
+      }
+      main {
+        max-width: 860px;
+        margin: 0 auto;
+        padding: 36px 20px;
+      }
+      .menu {
+        position: absolute;
+        right: 28px;
+        top: 64px;
+        width: 220px;
+        background: #fff;
+        border: 1px solid #bac5d3;
+        box-shadow: 0 18px 48px rgba(20, 35, 56, 0.18);
+        padding: 12px;
+      }
+      .menu a,
+      .menu button {
+        display: block;
+        width: 100%;
+        margin: 4px 0;
+        text-align: left;
+      }
+      button {
+        border: 1px solid #8694a7;
+        border-radius: 4px;
+        padding: 9px 12px;
+        background: #fff;
+      }
+      dialog {
+        border: 1px solid #8694a7;
+        border-radius: 8px;
+        padding: 24px;
+        max-width: 420px;
+      }
+      details {
+        margin-top: 20px;
+        padding: 16px;
+        background: #fff;
+        border: 1px solid #d2dae5;
+      }
+      [hidden] {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <strong>Workspace</strong>
+      <button type="button" id="menu-button" aria-expanded="false">Open menu</button>
+      <div class="menu" id="menu" hidden>
+        <a href="#profile">Profile</a>
+        <a href="#billing">Billing</a>
+        <button type="button" id="open-dialog">Open dialog</button>
+      </div>
+    </header>
+    <main>
+      <h1>Menu and Modal Interactions</h1>
+      <p>This page tests controls that reveal new UI after native clicks.</p>
+      <details>
+        <summary>Disclosure section</summary>
+        <p>Expanded details content should be captured after opening.</p>
+      </details>
+      <dialog id="dialog">
+        <h2>Confirm Action</h2>
+        <p>This dialog is opened by the underlying page.</p>
+        <button type="button" id="close-dialog">Close dialog</button>
+      </dialog>
+    </main>
+    <script>
+      const menuButton = document.getElementById("menu-button");
+      const menu = document.getElementById("menu");
+      menuButton.addEventListener("click", () => {
+        const open = menu.hidden;
+        menu.hidden = !open;
+        menuButton.setAttribute("aria-expanded", String(open));
+        menuButton.textContent = open ? "Close menu" : "Open menu";
+      });
+      document.getElementById("open-dialog").addEventListener("click", () => {
+        document.getElementById("dialog").showModal();
+      });
+      document.getElementById("close-dialog").addEventListener("click", () => {
+        document.getElementById("dialog").close();
+      });
+    </script>
+  </body>
+</html>

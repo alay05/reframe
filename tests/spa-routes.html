@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Reframe SPA Routes Test</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        color: #172033;
+        background: #f3f5f8;
+      }
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 18px 28px;
+        background: #fff;
+        border-bottom: 1px solid #d7dee8;
+      }
+      nav {
+        display: flex;
+        gap: 12px;
+      }
+      main {
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 32px 20px;
+      }
+      .cards {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+      }
+      article {
+        background: #fff;
+        border: 1px solid #d7dee8;
+        border-radius: 6px;
+        padding: 18px;
+      }
+      button {
+        border: 1px solid #8794a6;
+        border-radius: 4px;
+        background: #fff;
+        padding: 8px 11px;
+      }
+      @media (max-width: 760px) {
+        .cards {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <strong>Router Lab</strong>
+      <nav>
+        <a href="#overview" data-route="overview">Overview</a>
+        <a href="#projects" data-route="projects">Projects</a>
+        <a href="#settings" data-route="settings">Settings</a>
+      </nav>
+    </header>
+    <main id="app"></main>
+    <script>
+      const routes = {
+        overview: "<h1>Overview</h1><p>Route state is rendered from JavaScript.</p><section class='cards'><article><h2>Health</h2><p>Nominal</p></article><article><h2>Queue</h2><p>14 items</p></article><article><h2>Uptime</h2><p>99.9%</p></article></section>",
+        projects: "<h1>Projects</h1><p>Project cards replace the main content.</p><section class='cards'><article><h2>Atlas</h2><button type='button' class='mark'>Mark reviewed</button></article><article><h2>Beacon</h2><button type='button' class='mark'>Mark reviewed</button></article><article><h2>Cinder</h2><button type='button' class='mark'>Mark reviewed</button></article></section>",
+        settings: "<h1>Settings</h1><form id='settings-form'><label>Workspace name <input name='workspace' value='Router Lab'></label><label><input type='checkbox' checked> Enable notifications</label><button type='submit'>Save settings</button><p id='save-result'></p></form>"
+      };
+
+      function renderRoute() {
+        const route = location.hash.replace("#", "") || "overview";
+        document.getElementById("app").innerHTML = routes[route] || routes.overview;
+        document.querySelectorAll(".mark").forEach((button) => {
+          button.addEventListener("click", () => {
+            button.textContent = "Reviewed";
+          });
+        });
+        const form = document.getElementById("settings-form");
+        if (form) {
+          form.addEventListener("submit", (event) => {
+            event.preventDefault();
+            document.getElementById("save-result").textContent = "Settings saved.";
+          });
+        }
+      }
+
+      document.querySelectorAll("[data-route]").forEach((link) => {
+        link.addEventListener("click", (event) => {
+          event.preventDefault();
+          history.pushState({}, "", event.currentTarget.getAttribute("href"));
+          renderRoute();
+        });
+      });
+      window.addEventListener("popstate", renderRoute);
+      window.addEventListener("hashchange", renderRoute);
+      renderRoute();
+    </script>
+  </body>
+</html>

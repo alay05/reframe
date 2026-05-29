@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Reframe Dashboard Test</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        color: #172033;
+        background: #eef1f5;
+      }
+      .app {
+        display: grid;
+        grid-template-columns: 230px minmax(0, 1fr);
+        min-height: 100vh;
+      }
+      aside {
+        background: #172033;
+        color: #fff;
+        padding: 24px;
+      }
+      aside a {
+        display: block;
+        color: #dce7f3;
+        margin: 14px 0;
+      }
+      main {
+        padding: 24px;
+      }
+      .topbar,
+      .metrics,
+      .tabs {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        align-items: center;
+        margin-bottom: 18px;
+      }
+      .metric,
+      .panel {
+        background: #fff;
+        border: 1px solid #d7dde6;
+        border-radius: 6px;
+        padding: 16px;
+      }
+      .metric {
+        flex: 1;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        background: #fff;
+      }
+      th,
+      td {
+        border-bottom: 1px solid #d7dde6;
+        padding: 12px;
+        text-align: left;
+      }
+      button,
+      input {
+        border: 1px solid #9faabd;
+        border-radius: 4px;
+        padding: 8px 10px;
+        background: #fff;
+      }
+      .active {
+        background: #17324d;
+        color: #fff;
+      }
+      @media (max-width: 760px) {
+        .app {
+          grid-template-columns: 1fr;
+        }
+        .metrics,
+        .topbar {
+          display: block;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <aside>
+        <h1>OpsDesk</h1>
+        <nav>
+          <a href="#overview">Overview</a>
+          <a href="#tickets">Tickets</a>
+          <a href="#reports">Reports</a>
+        </nav>
+      </aside>
+      <main>
+        <section class="topbar">
+          <div>
+            <h2>Launch Operations</h2>
+            <p id="status">All regions reporting.</p>
+          </div>
+          <label>Search <input id="search" placeholder="Filter rows"></label>
+        </section>
+        <section class="metrics">
+          <article class="metric"><strong>42</strong><p>Open tasks</p></article>
+          <article class="metric"><strong>8</strong><p>Blocked</p></article>
+          <article class="metric"><strong>96%</strong><p>Coverage</p></article>
+        </section>
+        <section class="panel">
+          <div class="tabs" role="tablist">
+            <button class="active" type="button">Today</button>
+            <button type="button" id="week-tab">This week</button>
+            <button type="button">Archive</button>
+          </div>
+          <table>
+            <thead><tr><th>Owner</th><th>Task</th><th>Status</th><th>Action</th></tr></thead>
+            <tbody>
+              <tr><td>Mina</td><td>Confirm vendor slots</td><td>Ready</td><td><button type="button" class="resolve">Resolve</button></td></tr>
+              <tr><td>Noah</td><td>Update launch brief</td><td>Blocked</td><td><button type="button" class="resolve">Resolve</button></td></tr>
+              <tr><td>Iris</td><td>Ship field kits</td><td>In progress</td><td><button type="button" class="resolve">Resolve</button></td></tr>
+            </tbody>
+          </table>
+        </section>
+      </main>
+    </div>
+    <script>
+      document.getElementById("week-tab").addEventListener("click", () => {
+        document.getElementById("status").textContent = "Weekly view selected.";
+      });
+      document.querySelectorAll(".resolve").forEach((button) => {
+        button.addEventListener("click", () => {
+          button.closest("tr").querySelectorAll("td")[2].textContent = "Resolved";
+        });
+      });
+      document.getElementById("search").addEventListener("input", (event) => {
+        document.getElementById("status").textContent = `Filtering for ${event.target.value || "all rows"}.`;
+      });
+    </script>
+  </body>
+</html>

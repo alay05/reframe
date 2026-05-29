@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Reframe Ecommerce Test</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        color: #202532;
+        background: #f8f8f6;
+      }
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 28px;
+        background: #fff;
+        border-bottom: 1px solid #ddd9cf;
+      }
+      main {
+        display: grid;
+        grid-template-columns: 260px minmax(0, 1fr) 280px;
+        gap: 22px;
+        padding: 24px;
+      }
+      aside,
+      article,
+      .cart {
+        background: #fff;
+        border: 1px solid #ddd9cf;
+        border-radius: 6px;
+        padding: 16px;
+      }
+      fieldset {
+        border: 0;
+        padding: 0;
+        margin: 0 0 20px;
+      }
+      label {
+        display: block;
+        margin: 8px 0;
+      }
+      .products {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+      }
+      .thumb {
+        aspect-ratio: 4 / 3;
+        border-radius: 4px;
+        background: #c6d8e7;
+      }
+      .row {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        align-items: center;
+      }
+      button,
+      select,
+      input {
+        border: 1px solid #9aa6b2;
+        border-radius: 4px;
+        background: #fff;
+        padding: 8px 10px;
+      }
+      button {
+        background: #17324d;
+        color: #fff;
+      }
+      @media (max-width: 920px) {
+        main {
+          grid-template-columns: 1fr;
+        }
+        .products {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <strong>Workshop Supply</strong>
+      <nav><a href="#new">New</a> <a href="#tools">Tools</a> <a href="#support">Support</a></nav>
+      <button type="button" id="cart-button">Cart: <span id="cart-count">0</span></button>
+    </header>
+    <main>
+      <aside>
+        <h1>Filters</h1>
+        <fieldset>
+          <legend>Category</legend>
+          <label><input type="checkbox" checked> Notebooks</label>
+          <label><input type="checkbox"> Markers</label>
+          <label><input type="checkbox"> Storage</label>
+        </fieldset>
+        <fieldset>
+          <legend>Availability</legend>
+          <label><input type="radio" name="stock" checked> In stock</label>
+          <label><input type="radio" name="stock"> All items</label>
+        </fieldset>
+      </aside>
+      <section>
+        <h1>Studio Essentials</h1>
+        <div class="products">
+          <article>
+            <div class="thumb" role="img" aria-label="Blue notebook"></div>
+            <h2>Grid Notebook</h2>
+            <p>$18.00</p>
+            <label>Color <select><option>Blue</option><option>Black</option></select></label>
+            <div class="row"><input type="number" min="1" value="1"><button type="button" class="add">Add</button></div>
+          </article>
+          <article>
+            <div class="thumb" role="img" aria-label="Marker set"></div>
+            <h2>Marker Set</h2>
+            <p>$32.00</p>
+            <label>Tip <select><option>Fine</option><option>Broad</option></select></label>
+            <div class="row"><input type="number" min="1" value="1"><button type="button" class="add">Add</button></div>
+          </article>
+          <article>
+            <div class="thumb" role="img" aria-label="Storage tray"></div>
+            <h2>Storage Tray</h2>
+            <p>$24.00</p>
+            <label>Size <select><option>Small</option><option>Large</option></select></label>
+            <div class="row"><input type="number" min="1" value="1"><button type="button" class="add">Add</button></div>
+          </article>
+        </div>
+      </section>
+      <aside class="cart">
+        <h2>Cart Summary</h2>
+        <p id="cart-status">No items added.</p>
+        <button type="button" id="checkout">Checkout</button>
+      </aside>
+    </main>
+    <script>
+      let count = 0;
+      document.querySelectorAll(".add").forEach((button) => {
+        button.addEventListener("click", () => {
+          count += 1;
+          document.getElementById("cart-count").textContent = count;
+          document.getElementById("cart-status").textContent = `${count} item${count === 1 ? "" : "s"} in cart.`;
+        });
+      });
+      document.getElementById("checkout").addEventListener("click", () => {
+        document.getElementById("cart-status").textContent = "Checkout opened.";
+      });
+    </script>
+  </body>
+</html>

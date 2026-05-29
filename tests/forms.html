@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Reframe Forms Test</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: #f5f7fa;
+        color: #192334;
+      }
+      main {
+        max-width: 920px;
+        margin: 0 auto;
+        padding: 32px 20px;
+      }
+      form {
+        display: grid;
+        gap: 18px;
+      }
+      fieldset {
+        display: grid;
+        gap: 12px;
+        padding: 18px;
+        border: 1px solid #cbd4e1;
+        background: #fff;
+        border-radius: 6px;
+      }
+      label {
+        display: grid;
+        gap: 6px;
+      }
+      .inline {
+        display: flex;
+        gap: 18px;
+        flex-wrap: wrap;
+      }
+      input,
+      select,
+      textarea,
+      button {
+        border: 1px solid #9aa7b8;
+        border-radius: 4px;
+        padding: 9px 10px;
+      }
+      button {
+        width: fit-content;
+        background: #18385d;
+        color: #fff;
+      }
+      .error {
+        color: #a32727;
+        font-weight: 700;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Application Form</h1>
+      <form id="application">
+        <fieldset>
+          <legend>Profile</legend>
+          <label>Full name <input name="name" required></label>
+          <label>Email <input type="email" name="email" placeholder="name@example.com"></label>
+          <label>Department <select name="department"><option>Design</option><option>Engineering</option><option>Operations</option></select></label>
+        </fieldset>
+        <fieldset>
+          <legend>Preferences</legend>
+          <div class="inline">
+            <label><input type="radio" name="level" checked> Individual</label>
+            <label><input type="radio" name="level"> Team</label>
+          </div>
+          <div class="inline">
+            <label><input type="checkbox" name="updates" checked> Product updates</label>
+            <label><input type="checkbox" name="beta"> Beta access</label>
+          </div>
+          <label>Notes <textarea name="notes" placeholder="Describe your workflow"></textarea></label>
+          <label>Disabled example <input value="Locked value" disabled></label>
+        </fieldset>
+        <p id="error" class="error" hidden>Please enter a full name.</p>
+        <button type="submit">Submit application</button>
+        <p id="result" role="status"></p>
+      </form>
+    </main>
+    <script>
+      document.getElementById("application").addEventListener("submit", (event) => {
+        event.preventDefault();
+        const data = new FormData(event.currentTarget);
+        const error = document.getElementById("error");
+        if (!data.get("name")) {
+          error.hidden = false;
+          return;
+        }
+        error.hidden = true;
+        document.getElementById("result").textContent = `Application submitted for ${data.get("name")}.`;
+      });
+    </script>
+  </body>
+</html>
