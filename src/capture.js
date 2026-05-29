@@ -286,6 +286,26 @@
     ]).has(kind);
   }
 
+  function capturesChildren(element, kind) {
+    if (kind === "link" && element.children.length) {
+      return true;
+    }
+    return !capturesOwnText(kind);
+  }
+
+  function ownTextForElement(element, kind, hasChildren) {
+    if (kind === "form") {
+      return explicitElementLabel(element);
+    }
+    if (kind === "link" && hasChildren) {
+      return utils.directText(element);
+    }
+    if (capturesOwnText(kind)) {
+      return utils.accessibleName(element);
+    }
+    return utils.directText(element);
+  }
+
   function explicitElementLabel(element) {
     return utils.normalizeText(
       element.getAttribute("aria-label") ||
@@ -325,18 +345,15 @@
       return null;
     }
 
-    const children = capturesOwnText(kind) ? [] : captureChildren(element, depth);
+    const shouldCaptureChildren = capturesChildren(element, kind);
+    const children = shouldCaptureChildren ? captureChildren(element, depth) : [];
 
-    const directText = capturesOwnText(kind) ? "" : utils.directText(element);
+    const directText = shouldCaptureChildren ? utils.directText(element) : "";
     if (kind === "container" && isLowSignalContainer(element, children, directText)) {
       return children.length ? { kind: "fragment", children } : null;
     }
 
-    const text = kind === "form"
-      ? explicitElementLabel(element)
-      : capturesOwnText(kind)
-        ? utils.accessibleName(element)
-        : directText;
+    const text = ownTextForElement(element, kind, shouldCaptureChildren);
     if (!text && !children.length && !["image", "visual", "placeholder", "input", "textarea", "select", "checkbox", "radio"].includes(kind)) {
       return null;
     }

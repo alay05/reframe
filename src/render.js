@@ -396,7 +396,9 @@
         const link = document.createElement("a");
         link.className = "rf-node";
         link.href = node.attributes && node.attributes.href ? node.attributes.href : "#";
-        link.textContent = node.text || link.href || "Link";
+        if (node.text || !(node.children && node.children.length)) {
+          link.textContent = node.text || link.href || "Link";
+        }
         link.dataset.nodeId = node.id;
         link.dataset.action = "activate";
         applyLayout(link, node);
