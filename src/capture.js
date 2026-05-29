@@ -147,6 +147,9 @@
     const tagName = element.tagName;
     const role = utils.elementRole(element);
 
+    if (role === "img" || hasVisualSurface(element)) {
+      return "visual";
+    }
     if (constants.HEADING_TAGS.has(tagName)) {
       return "heading";
     }
@@ -217,6 +220,23 @@
     return "container";
   }
 
+  function hasVisualSurface(element) {
+    if (element.children.length || utils.directText(element)) {
+      return false;
+    }
+    const style = window.getComputedStyle(element);
+    const rect = element.getBoundingClientRect();
+    const hasBackground =
+      style.backgroundImage !== "none" ||
+      (style.backgroundColor &&
+        style.backgroundColor !== "transparent" &&
+        style.backgroundColor !== "rgba(0, 0, 0, 0)");
+    const hasBorder =
+      style.borderTopStyle !== "none" &&
+      style.borderTopWidth !== "0px";
+    return rect.width >= 8 && rect.height >= 8 && (hasBackground || hasBorder);
+  }
+
   function actionFor(kind, element) {
     if (kind === "link") {
       return "navigate";
@@ -261,8 +281,17 @@
       "checkbox",
       "radio",
       "image",
+      "visual",
       "placeholder"
     ]).has(kind);
+  }
+
+  function explicitElementLabel(element) {
+    return utils.normalizeText(
+      element.getAttribute("aria-label") ||
+        element.getAttribute("name") ||
+        element.getAttribute("title")
+    );
   }
 
   function isLowSignalContainer(element, children, directText) {
@@ -303,11 +332,12 @@
       return children.length ? { kind: "fragment", children } : null;
     }
 
-    const text =
-      capturesOwnText(kind) || kind === "form"
+    const text = kind === "form"
+      ? explicitElementLabel(element)
+      : capturesOwnText(kind)
         ? utils.accessibleName(element)
         : directText;
-    if (!text && !children.length && !["image", "placeholder", "input", "textarea", "select", "checkbox", "radio"].includes(kind)) {
+    if (!text && !children.length && !["image", "visual", "placeholder", "input", "textarea", "select", "checkbox", "radio"].includes(kind)) {
       return null;
     }
 

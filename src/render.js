@@ -199,16 +199,19 @@
       if (layout.gridTemplateColumns && layout.gridTemplateColumns !== "none") {
         element.style.setProperty("--rf-grid-columns", safeGridTemplate(layout.gridTemplateColumns));
       }
-    } else if (layout.display === "inline" || layout.display === "inline-block") {
-      element.style.display = "inline-block";
+    } else if (safeDisplayValue(layout.display)) {
+      element.style.display = layout.display;
     }
 
     if (shouldPreserveWidth(node) && layout.width > 0) {
       element.style.width = `${layout.width}px`;
       element.style.maxWidth = "100%";
     }
-    if (node.kind === "image" && layout.height > 0) {
+    if ((node.kind === "image" || node.kind === "visual") && layout.height > 0) {
       element.style.aspectRatio = `${Math.max(layout.width, 1)} / ${Math.max(layout.height, 1)}`;
+    }
+    if (node.kind === "visual" && layout.height > 0) {
+      element.style.minHeight = `${Math.min(Math.max(layout.height, 8), 640)}px`;
     }
   }
 
@@ -299,6 +302,21 @@
     return value;
   }
 
+  function safeDisplayValue(value) {
+    return [
+      "block",
+      "inline-block",
+      "list-item",
+      "table",
+      "table-row-group",
+      "table-header-group",
+      "table-footer-group",
+      "table-row",
+      "table-cell",
+      "flow-root"
+    ].includes(value);
+  }
+
   function safeLength(value, maxPx) {
     if (!value || value === "auto" || value === "normal") {
       return "";
@@ -328,7 +346,7 @@
   }
 
   function shouldPreserveWidth(node) {
-    return ["button", "input", "textarea", "select", "image", "placeholder"].includes(node.kind);
+    return ["button", "input", "textarea", "select", "image", "visual", "placeholder"].includes(node.kind);
   }
 
   function registerNode(node) {
@@ -404,6 +422,8 @@
         return renderControl(node);
       case "image":
         return renderImage(node);
+      case "visual":
+        return renderVisual(node);
       case "placeholder":
         return renderPlaceholder(node);
       case "list": {
@@ -571,6 +591,20 @@
     image.alt = node.text || (node.attributes && node.attributes.alt) || "";
     applyLayout(image, node);
     return image;
+  }
+
+  function renderVisual(node) {
+    const visual = document.createElement("div");
+    visual.className = "rf-node rf-visual";
+    visual.dataset.nodeId = node.id;
+    if (node.text) {
+      visual.setAttribute("aria-label", node.text);
+      visual.setAttribute("role", "img");
+    } else {
+      visual.setAttribute("aria-hidden", "true");
+    }
+    applyLayout(visual, node);
+    return visual;
   }
 
   function renderPlaceholder(node) {

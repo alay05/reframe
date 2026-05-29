@@ -42,6 +42,7 @@
       "TH",
       "TD",
       "FIELDSET",
+      "LEGEND",
       "DETAILS",
       "SUMMARY",
       "DIALOG"
