@@ -156,6 +156,9 @@
     if (element instanceof HTMLButtonElement) {
       return "button";
     }
+    if (tagName === "SUMMARY") {
+      return "button";
+    }
     if (element instanceof HTMLInputElement) {
       const type = (element.type || "text").toLowerCase();
       if (["hidden", "file", "image", "range", "color"].includes(type)) {
@@ -377,7 +380,22 @@
   }
 
   function flattenForFingerprint(node, out) {
-    out.push(`${node.kind}:${node.text || ""}:${node.state ? node.state.value || "" : ""}:${node.state && node.state.checked ? "1" : "0"}`);
+    const layout = node.layout || {};
+    const style = node.style || {};
+    const state = node.state || {};
+    out.push([
+      node.kind,
+      node.text || "",
+      state.value || "",
+      state.checked ? "1" : "0",
+      state.open ? "open" : "",
+      state.ariaExpanded || "",
+      layout.width || "",
+      layout.height || "",
+      layout.display || "",
+      style.backgroundColor || "",
+      style.color || ""
+    ].join(":"));
     for (const child of node.children || []) {
       flattenForFingerprint(child, out);
     }

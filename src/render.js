@@ -75,64 +75,42 @@
         position: fixed;
         inset: 0;
         overflow: auto;
-        background: #fff;
-        color: #000;
+        background: canvas;
+        color: canvastext;
         font-family: Arial, Helvetica, sans-serif;
         font-size: 16px;
         line-height: 1.45;
       }
       .page {
         min-height: 100%;
-        padding: 24px;
+        padding: 0;
       }
       .rf-node {
         box-sizing: border-box;
         min-width: 0;
       }
-      .rf-container,
-      .rf-root,
-      .rf-form,
-      .rf-listitem,
-      .rf-cell {
-        margin: 0 0 14px;
-      }
       .rf-layout-flex {
         display: flex;
-        flex-wrap: wrap;
-        gap: var(--rf-gap, 12px);
+        flex-wrap: var(--rf-wrap, wrap);
+        gap: var(--rf-gap, normal);
         align-items: var(--rf-align, stretch);
         justify-content: var(--rf-justify, flex-start);
       }
       .rf-layout-grid {
         display: grid;
-        gap: var(--rf-gap, 12px);
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: var(--rf-gap, normal);
+        grid-template-columns: var(--rf-grid-columns, none);
       }
-      .rf-header,
-      .rf-nav,
-      .rf-main,
-      .rf-section,
-      .rf-article,
-      .rf-footer,
-      .rf-aside {
-        border: 1px solid #bbb;
-        padding: 14px;
-      }
-      .rf-nav {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        align-items: center;
-      }
-      h1, h2, h3, h4, h5, h6 {
-        color: #000;
-        font-family: Georgia, "Times New Roman", serif;
-        letter-spacing: 0;
-        line-height: 1.14;
-        margin: 0 0 12px;
-      }
-      p {
-        margin: 0 0 10px;
+      section,
+      article,
+      aside,
+      header,
+      footer,
+      nav,
+      form,
+      main,
+      div {
+        display: block;
       }
       a,
       button,
@@ -141,31 +119,17 @@
       select {
         font: inherit;
       }
-      a,
-      .rf-clickable {
-        color: #000;
-        text-decoration: underline;
-        cursor: pointer;
-      }
       button,
-      .rf-button,
+      a,
       input,
       textarea,
-      select {
-        border: 1px solid #000;
-        background: #fff;
-        color: #000;
-        padding: 9px 11px;
-      }
-      button,
-      .rf-button {
+      select,
+      summary {
         cursor: pointer;
-        text-decoration: none;
       }
       label {
-        display: grid;
-        gap: 6px;
-        margin: 0 0 10px;
+        display: inline-grid;
+        gap: 0.35em;
       }
       input[type="checkbox"],
       input[type="radio"] {
@@ -179,25 +143,11 @@
         display: block;
         max-width: 100%;
         height: auto;
-        filter: grayscale(1);
-        border: 1px solid #aaa;
-      }
-      ul, ol {
-        margin: 0 0 14px;
-        padding-left: 26px;
       }
       table {
-        width: 100%;
         border-collapse: collapse;
-        margin: 0 0 16px;
-      }
-      tr {
-        border-bottom: 1px solid #aaa;
       }
       th, td {
-        border: 1px solid #aaa;
-        padding: 8px;
-        text-align: left;
         vertical-align: top;
       }
       .rf-choice {
@@ -206,8 +156,7 @@
         gap: 8px;
       }
       .rf-placeholder {
-        border: 1px dashed #000;
-        color: #333;
+        border: 1px dashed currentColor;
         padding: 16px;
         min-height: 80px;
       }
@@ -232,40 +181,154 @@
     const layout = node.layout || {};
     const tagName = node.tagName || "";
     element.classList.add(`rf-${tagName || node.kind}`);
+    applyVisualStyle(element, node);
+    applySpacing(element, node);
+
     if (layout.display === "flex" || layout.display === "inline-flex") {
       element.classList.add("rf-layout-flex");
       element.style.setProperty("--rf-gap", normalizeGap(layout.gap));
       element.style.setProperty("--rf-align", layout.alignItems || "stretch");
       element.style.setProperty("--rf-justify", layout.justifyContent || "flex-start");
+      element.style.setProperty("--rf-wrap", layout.flexWrap || "wrap");
       if (layout.flexDirection && layout.flexDirection.includes("column")) {
         element.style.flexDirection = "column";
       }
     } else if (layout.display === "grid" || layout.display === "inline-grid") {
       element.classList.add("rf-layout-grid");
       element.style.setProperty("--rf-gap", normalizeGap(layout.gap));
+      if (layout.gridTemplateColumns && layout.gridTemplateColumns !== "none") {
+        element.style.setProperty("--rf-grid-columns", safeGridTemplate(layout.gridTemplateColumns));
+      }
+    } else if (layout.display === "inline" || layout.display === "inline-block") {
+      element.style.display = "inline-block";
     }
 
-    if (layout.textAlign && layout.textAlign !== "start") {
-      element.style.textAlign = layout.textAlign;
+    if (shouldPreserveWidth(node) && layout.width > 0) {
+      element.style.width = `${layout.width}px`;
+      element.style.maxWidth = "100%";
     }
-    const fontSize = utils.clampNumber(layout.fontSize, 16, 11, 48);
-    if (node.kind === "text" || node.kind === "container") {
-      element.style.fontSize = `${fontSize}px`;
+    if (node.kind === "image" && layout.height > 0) {
+      element.style.aspectRatio = `${Math.max(layout.width, 1)} / ${Math.max(layout.height, 1)}`;
     }
-    if (Number.parseInt(layout.fontWeight, 10) >= 600) {
-      element.style.fontWeight = "700";
+  }
+
+  function applyVisualStyle(element, node) {
+    const style = node.style || {};
+    setIfSafe(element, "color", style.color);
+    setIfSafe(element, "backgroundColor", nonTransparent(style.backgroundColor));
+    setIfSafe(element, "backgroundImage", style.backgroundImage);
+    setIfSafe(element, "fontFamily", style.fontFamily);
+    setIfSafe(element, "fontStyle", style.fontStyle);
+    setIfSafe(element, "lineHeight", style.lineHeight);
+    setIfSafe(element, "letterSpacing", style.letterSpacing);
+    setIfSafe(element, "textTransform", style.textTransform);
+    setIfSafe(element, "textAlign", style.textAlign);
+    setIfSafe(element, "textDecorationLine", style.textDecorationLine);
+    setIfSafe(element, "textDecorationStyle", style.textDecorationStyle);
+    setIfSafe(element, "textDecorationColor", style.textDecorationColor);
+    setIfSafe(element, "boxShadow", style.boxShadow);
+    setIfSafe(element, "opacity", style.opacity);
+    setIfSafe(element, "borderRadius", style.borderRadius);
+
+    const fontSize = utils.clampNumber(style.fontSize, 16, 9, 72);
+    element.style.fontSize = `${fontSize}px`;
+    if (style.fontWeight) {
+      element.style.fontWeight = style.fontWeight;
     }
-    if (layout.borderStyle && layout.borderStyle !== "none" && layout.borderWidth !== "0px") {
-      element.style.border = "1px solid #aaa";
-      element.style.padding = "10px";
+    if (style.objectFit) {
+      element.style.objectFit = style.objectFit;
+    }
+    if (style.objectPosition) {
+      element.style.objectPosition = style.objectPosition;
+    }
+    if (style.listStyleType && node.kind === "list") {
+      element.style.listStyleType = style.listStyleType;
+    }
+    applyBorder(element, style);
+  }
+
+  function applySpacing(element, node) {
+    const layout = node.layout || {};
+    if (node.kind === "root") {
+      return;
+    }
+
+    for (const [property, value] of [
+      ["paddingTop", layout.paddingTop],
+      ["paddingRight", layout.paddingRight],
+      ["paddingBottom", layout.paddingBottom],
+      ["paddingLeft", layout.paddingLeft],
+      ["marginTop", layout.marginTop],
+      ["marginRight", layout.marginRight],
+      ["marginBottom", layout.marginBottom],
+      ["marginLeft", layout.marginLeft]
+    ]) {
+      const normalized = safeLength(value, 96);
+      if (normalized) {
+        element.style[property] = normalized;
+      }
+    }
+  }
+
+  function applyBorder(element, style) {
+    for (const side of ["Top", "Right", "Bottom", "Left"]) {
+      const width = style[`border${side}Width`];
+      const borderStyle = style[`border${side}Style`];
+      const color = style[`border${side}Color`];
+      if (!width || width === "0px" || !borderStyle || borderStyle === "none") {
+        continue;
+      }
+      element.style[`border${side}`] = `${safeLength(width, 24) || "1px"} ${borderStyle} ${color || "currentColor"}`;
     }
   }
 
   function normalizeGap(value) {
     if (!value || value === "normal") {
-      return "12px";
+      return "normal";
     }
-    return value.split(" ")[0];
+    return value
+      .split(" ")
+      .map((part) => safeLength(part, 120) || "0px")
+      .join(" ");
+  }
+
+  function safeGridTemplate(value) {
+    if (!value || value === "none" || value.length > 400) {
+      return "none";
+    }
+    return value;
+  }
+
+  function safeLength(value, maxPx) {
+    if (!value || value === "auto" || value === "normal") {
+      return "";
+    }
+    if (value.endsWith("px")) {
+      const clamped = utils.clampNumber(value, 0, -maxPx, maxPx);
+      return `${clamped}px`;
+    }
+    if (/^-?\d+(\.\d+)?(em|rem|%)$/.test(value)) {
+      return value;
+    }
+    return "";
+  }
+
+  function setIfSafe(element, property, value) {
+    if (!value || value === "normal" || value === "none") {
+      return;
+    }
+    element.style[property] = value;
+  }
+
+  function nonTransparent(value) {
+    if (!value || value === "transparent" || value === "rgba(0, 0, 0, 0)") {
+      return "";
+    }
+    return value;
+  }
+
+  function shouldPreserveWidth(node) {
+    return ["button", "input", "textarea", "select", "image", "placeholder"].includes(node.kind);
   }
 
   function registerNode(node) {
@@ -290,6 +353,7 @@
       case "root": {
         const root = document.createElement("main");
         root.className = "rf-node rf-root page";
+        applyLayout(root, node);
         renderChildren(root, node);
         return root;
       }
@@ -307,6 +371,7 @@
         paragraph.className = "rf-node";
         paragraph.textContent = node.text || "";
         paragraph.dataset.nodeId = node.id;
+        applyLayout(paragraph, node);
         return paragraph;
       }
       case "link": {
@@ -368,7 +433,7 @@
       case "form":
       case "container":
       default: {
-        const section = document.createElement(node.kind === "form" ? "form" : "section");
+        const section = document.createElement(node.kind === "form" ? "form" : containerTag(node));
         section.className = `rf-node rf-${node.kind}`;
         section.dataset.nodeId = node.id;
         if (node.kind === "form") {
@@ -428,6 +493,7 @@
     control.required = Boolean(node.state.required);
     control.dataset.nodeId = node.id;
     control.dataset.action = "activate";
+    applyControlStyle(control, node);
     if (control.disabled) {
       wrapper.classList.add("rf-disabled");
     }
@@ -438,6 +504,49 @@
       wrapper.append(labelText, control);
     }
     return wrapper;
+  }
+
+  function containerTag(node) {
+    return [
+      "header",
+      "footer",
+      "nav",
+      "main",
+      "section",
+      "article",
+      "aside",
+      "div",
+      "fieldset",
+      "legend",
+      "details",
+      "summary",
+      "dialog"
+    ].includes(node.tagName)
+      ? node.tagName
+      : "section";
+  }
+
+  function applyControlStyle(control, node) {
+    const style = node.style || {};
+    setIfSafe(control, "color", style.color);
+    setIfSafe(control, "backgroundColor", nonTransparent(style.backgroundColor));
+    setIfSafe(control, "fontFamily", style.fontFamily);
+    setIfSafe(control, "fontSize", style.fontSize);
+    setIfSafe(control, "fontWeight", style.fontWeight);
+    setIfSafe(control, "borderRadius", style.borderRadius);
+    applyBorder(control, style);
+    const layout = node.layout || {};
+    for (const [property, value] of [
+      ["paddingTop", layout.paddingTop],
+      ["paddingRight", layout.paddingRight],
+      ["paddingBottom", layout.paddingBottom],
+      ["paddingLeft", layout.paddingLeft]
+    ]) {
+      const normalized = safeLength(value, 96);
+      if (normalized) {
+        control.style[property] = normalized;
+      }
+    }
   }
 
   function safeInputType(type) {
