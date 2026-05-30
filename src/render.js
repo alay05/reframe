@@ -470,6 +470,7 @@
           section.dataset.action = "submit";
         }
         applyLayout(section, node);
+        applyElementState(section, node);
         if (node.text && node.kind === "form") {
           const legend = document.createElement("p");
           legend.textContent = node.text;
@@ -569,6 +570,25 @@
     ].includes(node.tagName)
       ? node.tagName
       : "section";
+  }
+
+  function applyElementState(element, node) {
+    const state = node.state || {};
+    if (node.tagName === "details") {
+      element.open = Boolean(state.open);
+    }
+    if (node.tagName === "dialog" && state.open) {
+      element.setAttribute("open", "");
+    }
+    if (state.ariaExpanded) {
+      element.setAttribute("aria-expanded", state.ariaExpanded);
+    }
+    if (state.ariaSelected) {
+      element.setAttribute("aria-selected", state.ariaSelected);
+    }
+    if (state.ariaCurrent) {
+      element.setAttribute("aria-current", state.ariaCurrent);
+    }
   }
 
   function applyControlStyle(control, node) {
