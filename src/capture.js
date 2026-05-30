@@ -79,6 +79,23 @@
     };
   }
 
+  function captureStyleTokens(element, layout, style) {
+    const rect = element.getBoundingClientRect();
+    const area = Math.round(rect.width * rect.height);
+    const fontSize = Number.parseFloat(style.fontSize) || 16;
+    const fontWeight = Number.parseInt(style.fontWeight, 10) || 400;
+    return {
+      hasSurface: hasNonTransparentPaint(style.backgroundColor) || Boolean(style.backgroundImage),
+      hasBorder: hasVisibleBorder(style),
+      hasShadow: Boolean(style.boxShadow),
+      isLargeText: fontSize >= 24,
+      isBoldText: fontWeight >= 600,
+      isScrollable: layout.overflow === "auto" || layout.overflow === "scroll" || layout.overflowY === "auto" || layout.overflowY === "scroll",
+      area,
+      size: area > 240000 ? "large" : area > 60000 ? "medium" : "small"
+    };
+  }
+
   function safeBackgroundImage(backgroundImage) {
     if (!backgroundImage || backgroundImage === "none") {
       return "";
@@ -94,6 +111,18 @@
       return "";
     }
     return boxShadow.length > 240 ? "" : boxShadow;
+  }
+
+  function hasNonTransparentPaint(value) {
+    return Boolean(value && value !== "transparent" && value !== "rgba(0, 0, 0, 0)");
+  }
+
+  function hasVisibleBorder(style) {
+    return ["Top", "Right", "Bottom", "Left"].some((side) => {
+      const width = style[`border${side}Width`];
+      const borderStyle = style[`border${side}Style`];
+      return width && width !== "0px" && borderStyle && borderStyle !== "none";
+    });
   }
 
   function elementState(element) {
@@ -260,6 +289,106 @@
     return "";
   }
 
+  function captureSemantic(element, kind) {
+    const tagName = element.tagName.toLowerCase();
+    const role = utils.elementRole(element);
+    return {
+      kind,
+      tagName,
+      role,
+      landmark: landmarkFor(tagName, role),
+      designRole: designRoleFor(element, kind, tagName, role),
+      headingLevel: constants.HEADING_TAGS.has(element.tagName) ? Number(element.tagName.slice(1)) : null,
+      listType: tagName === "ol" ? "ordered" : tagName === "ul" ? "unordered" : "",
+      tableRole: tableRoleFor(kind),
+      isComposite: element.children.length > 0
+    };
+  }
+
+  function landmarkFor(tagName, role) {
+    if (role) {
+      return role;
+    }
+    if (["main", "nav", "header", "footer", "aside", "section", "article", "form"].includes(tagName)) {
+      return tagName;
+    }
+    return "";
+  }
+
+  function designRoleFor(element, kind, tagName, role) {
+    if (kind === "link" || kind === "button" || kind === "summary") {
+      return element.children.length ? "interactiveGroup" : "action";
+    }
+    if (["input", "textarea", "select", "checkbox", "radio"].includes(kind)) {
+      return "control";
+    }
+    if (kind === "image" || kind === "visual" || kind === "placeholder") {
+      return "media";
+    }
+    if (kind === "heading") {
+      return "heading";
+    }
+    if (kind === "table" || kind === "tableSection" || kind === "row" || kind === "cell") {
+      return "data";
+    }
+    if (tagName === "nav" || role === "navigation") {
+      return "navigation";
+    }
+    if (tagName === "form") {
+      return "form";
+    }
+    if (["article", "section", "aside", "li"].includes(tagName)) {
+      return "group";
+    }
+    return kind === "text" ? "text" : "container";
+  }
+
+  function tableRoleFor(kind) {
+    if (kind === "table") {
+      return "table";
+    }
+    if (kind === "tableSection") {
+      return "section";
+    }
+    if (kind === "row") {
+      return "row";
+    }
+    if (kind === "cell") {
+      return "cell";
+    }
+    return "";
+  }
+
+  function captureContent(element, kind, text) {
+    return {
+      text,
+      directText: utils.directText(element),
+      accessibleName: utils.accessibleName(element),
+      title: utils.normalizeText(element.getAttribute("title")),
+      alt: element instanceof HTMLImageElement ? utils.normalizeText(element.alt) : "",
+      href: element instanceof HTMLAnchorElement ? element.href : "",
+      source: element instanceof HTMLImageElement ? element.currentSrc || element.src : "",
+      textSignature: utils.normalizeText(text || utils.accessibleName(element), 180),
+      hasText: Boolean(text),
+      hasMedia: kind === "image" || kind === "visual" || kind === "placeholder"
+    };
+  }
+
+  function captureInteraction(element, kind, action) {
+    const isControl = ["input", "textarea", "select", "checkbox", "radio"].includes(kind);
+    return {
+      action,
+      interactive: Boolean(action || element instanceof HTMLAnchorElement || element instanceof HTMLButtonElement || isControl),
+      controlType: element instanceof HTMLInputElement ? (element.type || "text").toLowerCase() : kind,
+      disabled: Boolean(element.disabled),
+      required: Boolean(element.required),
+      href: element instanceof HTMLAnchorElement ? element.href : "",
+      target: element instanceof HTMLAnchorElement ? element.target : "",
+      keyboardActivates: ["link", "button", "summary", "checkbox", "radio"].includes(kind),
+      valueMutable: ["input", "textarea", "select", "checkbox", "radio"].includes(kind)
+    };
+  }
+
   function directTextNode(text) {
     const normalized = utils.normalizeText(text);
     if (!normalized) {
@@ -269,6 +398,57 @@
       id: utils.nextId("node"),
       kind: "text",
       text: normalized,
+      tagName: "#text",
+      role: "",
+      semantic: {
+        kind: "text",
+        tagName: "#text",
+        role: "",
+        landmark: "",
+        designRole: "text",
+        headingLevel: null,
+        listType: "",
+        tableRole: "",
+        isComposite: false
+      },
+      content: {
+        text: normalized,
+        directText: normalized,
+        accessibleName: normalized,
+        title: "",
+        alt: "",
+        href: "",
+        source: "",
+        textSignature: utils.normalizeText(normalized, 180),
+        hasText: true,
+        hasMedia: false
+      },
+      interaction: {
+        action: "",
+        interactive: false,
+        controlType: "",
+        disabled: false,
+        required: false,
+        href: "",
+        target: "",
+        keyboardActivates: false,
+        valueMutable: false
+      },
+      appearance: {
+        bounds: null,
+        layout: null,
+        style: null,
+        tokens: {
+          hasSurface: false,
+          hasBorder: false,
+          hasShadow: false,
+          isLargeText: false,
+          isBoldText: false,
+          isScrollable: false,
+          area: 0,
+          size: "small"
+        }
+      },
       children: []
     };
   }
@@ -369,6 +549,8 @@
       role: utils.elementRole(element),
       text,
       attributes: captureAttributes(element),
+      semantic: captureSemantic(element, kind),
+      content: captureContent(element, kind, text),
       layout: captureLayout(element),
       style: captureStyle(element),
       state: {
@@ -378,6 +560,18 @@
       action: actionFor(kind, element),
       targetRef: locator.createElementRef(element),
       children
+    };
+    node.interaction = captureInteraction(element, kind, node.action);
+    node.appearance = {
+      bounds: {
+        x: node.layout.x,
+        y: node.layout.y,
+        width: node.layout.width,
+        height: node.layout.height
+      },
+      layout: node.layout,
+      style: node.style,
+      tokens: captureStyleTokens(element, node.layout, node.style)
     };
 
     if (kind === "heading") {
@@ -492,13 +686,59 @@
       text: "",
       layout: captureLayout(body),
       style: captureStyle(body),
+      semantic: {
+        kind: "root",
+        tagName: "body",
+        role: "",
+        landmark: "document",
+        designRole: "page",
+        headingLevel: null,
+        listType: "",
+        tableRole: "",
+        isComposite: true
+      },
+      content: {
+        text: "",
+        directText: "",
+        accessibleName: document.title,
+        title: document.title,
+        alt: "",
+        href: "",
+        source: "",
+        textSignature: utils.normalizeText(document.title, 180),
+        hasText: Boolean(document.title),
+        hasMedia: false
+      },
       state: {},
       children: rootChildren
+    };
+    root.interaction = {
+      action: "",
+      interactive: false,
+      controlType: "",
+      disabled: false,
+      required: false,
+      href: "",
+      target: "",
+      keyboardActivates: false,
+      valueMutable: false
+    };
+    root.appearance = {
+      bounds: {
+        x: root.layout.x,
+        y: root.layout.y,
+        width: root.layout.width,
+        height: root.layout.height
+      },
+      layout: root.layout,
+      style: root.style,
+      tokens: captureStyleTokens(body, root.layout, root.style)
     };
     const fingerprintParts = [];
     flattenForFingerprint(root, fingerprintParts);
 
     return {
+      modelVersion: 1,
       origin: location.origin,
       url: location.href,
       title: document.title,
