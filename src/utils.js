@@ -65,6 +65,17 @@
     return normalizeText(element.innerText || element.textContent || "");
   }
 
+  function labelText(element) {
+    if (!(element instanceof HTMLElement)) {
+      return "";
+    }
+    const clone = element.cloneNode(true);
+    clone.querySelectorAll("input, textarea, select, option, button").forEach((control) => {
+      control.remove();
+    });
+    return normalizeText(clone.textContent || "");
+  }
+
   function accessibleName(element) {
     if (!(element instanceof HTMLElement)) {
       return "";
@@ -99,7 +110,7 @@
       if (element.id) {
         const label = document.querySelector(`label[for="${CSS.escape(element.id)}"]`);
         if (label) {
-          const text = elementText(label);
+          const text = labelText(label);
           if (text) {
             return text;
           }
@@ -107,7 +118,7 @@
       }
       const parentLabel = element.closest("label");
       if (parentLabel) {
-        const text = elementText(parentLabel);
+        const text = labelText(parentLabel);
         if (text) {
           return text;
         }
@@ -170,6 +181,7 @@
     isVisible,
     directText,
     elementText,
+    labelText,
     accessibleName,
     mutationTouchesOnlyExtensionDom,
     elementRole,

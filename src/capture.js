@@ -418,7 +418,25 @@
 
   function captureAttributes(element) {
     const attrs = {};
-    for (const name of ["href", "src", "alt", "title", "target", "type", "name", "placeholder", "aria-expanded", "aria-current"]) {
+    for (const name of [
+      "href",
+      "src",
+      "alt",
+      "title",
+      "target",
+      "type",
+      "name",
+      "placeholder",
+      "aria-expanded",
+      "aria-current",
+      "min",
+      "max",
+      "step",
+      "minlength",
+      "maxlength",
+      "pattern",
+      "autocomplete"
+    ]) {
       const value = element.getAttribute(name);
       if (value) {
         attrs[name] = value;

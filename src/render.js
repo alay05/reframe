@@ -388,12 +388,11 @@
         return heading;
       }
       case "text": {
-        const paragraph = document.createElement("p");
-        paragraph.className = "rf-node";
-        paragraph.textContent = node.text || "";
-        paragraph.dataset.nodeId = node.id;
-        applyLayout(paragraph, node);
-        return paragraph;
+        const span = document.createElement("span");
+        span.className = "rf-node rf-text";
+        span.textContent = node.text || "";
+        span.dataset.nodeId = node.id;
+        return span;
       }
       case "link": {
         const link = document.createElement("a");
@@ -499,6 +498,7 @@
       control.placeholder = node.state.placeholder || "";
     } else if (node.kind === "select") {
       control = document.createElement("select");
+      control.multiple = Boolean(node.state.multiple);
       for (const option of node.state.options || []) {
         const optionElement = document.createElement("option");
         optionElement.value = option.value;
@@ -524,6 +524,7 @@
     control.required = Boolean(node.state.required);
     control.dataset.nodeId = node.id;
     control.dataset.action = "activate";
+    applyControlAttributes(control, node);
     applyControlStyle(control, node);
     if (control.disabled) {
       wrapper.classList.add("rf-disabled");
@@ -551,7 +552,20 @@
       "legend",
       "details",
       "summary",
-      "dialog"
+      "dialog",
+      "p",
+      "span",
+      "strong",
+      "b",
+      "em",
+      "i",
+      "small",
+      "code",
+      "pre",
+      "blockquote",
+      "figcaption",
+      "figure",
+      "label"
     ].includes(node.tagName)
       ? node.tagName
       : "section";
@@ -576,6 +590,15 @@
       const normalized = safeLength(value, 96);
       if (normalized) {
         control.style[property] = normalized;
+      }
+    }
+  }
+
+  function applyControlAttributes(control, node) {
+    const attrs = node.attributes || {};
+    for (const name of ["name", "min", "max", "step", "minlength", "maxlength", "pattern", "autocomplete"]) {
+      if (attrs[name]) {
+        control.setAttribute(name, attrs[name]);
       }
     }
   }
